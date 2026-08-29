@@ -1,0 +1,67 @@
+package com.example.fintech_simulator;
+
+import java.math.BigDecimal;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+import com.example.fintech_simulator.entity.Card;
+import com.example.fintech_simulator.repository.CardRepository;
+
+@SpringBootApplication
+public class FintechSimulatorApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(FintechSimulatorApplication.class, args);
+    }
+
+    @Bean
+    public CommandLineRunner demo(CardRepository repository) {
+        return (args) -> {
+            // Seed demo cards only on first run; balances persist across restarts otherwise.
+            if (repository.count() == 0) {
+                Card card1 = new Card();
+                card1.setCardNumber("1111222233334444");
+                card1.setOwnerName("Nabijon Nazarov");
+                card1.setBalance(new BigDecimal("1170.00"));
+                card1.setCurrency("USD");
+
+                Card card2 = new Card();
+                card2.setCardNumber("1111222233335555");
+                card2.setOwnerName("Nabijon Nazarov");
+                card2.setBalance(new BigDecimal("500.00"));
+                card2.setCurrency("EUR");
+
+                Card card3 = new Card();
+                card3.setCardNumber("1111222233336666");
+                card3.setOwnerName("Nabijon Nazarov");
+                card3.setBalance(new BigDecimal("250.00"));
+                card3.setCurrency("GBP");
+
+                Card card4 = new Card();
+                card4.setCardNumber("5555666677778888");
+                card4.setOwnerName("Yasmina Matchanova");
+                card4.setBalance(new BigDecimal("150.00"));
+                card4.setCurrency("EUR");
+
+                Card card5 = new Card();
+                card5.setCardNumber("2020202020202020");
+                card5.setOwnerName("John Galt");
+                card5.setBalance(new BigDecimal("200.00"));
+                card5.setCurrency("USD");
+
+                repository.save(card1);
+                repository.save(card2);
+                repository.save(card3);
+                repository.save(card4);
+                repository.save(card5);
+
+                System.out.println("--- PERSISTENT DB INITIALIZED WITH STARTING CARDS ---");
+            } else {
+                System.out.println("--- PERSISTENT DB LOADED SUCCESSFULLY (BALANCES PRESERVED) ---");
+            }
+        };
+    }
+}

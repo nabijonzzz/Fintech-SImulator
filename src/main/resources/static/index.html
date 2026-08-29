@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echo // Digital Banking Terminal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Echo.">
+    
+    <style>
+        :root {
+            --bg-main: #060708;
+            --panel-bg: rgba(18, 19, 22, 0.75); /* Полупрозрачный фон для эффекта стекла */
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-color: #e63946; 
+            --accent-orange: #f8961e; 
+            --text-primary: #ffffff;
+            --text-secondary: #8a8f98;
+        }
+
+        body { 
+            background-color: var(--bg-main); 
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif; 
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ФИЧА 1: Живой текстурный бэкграунд (Размытые неоновые сферы) */
+        .bg-glow-1 {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(230, 57, 70, 0.15) 0%, rgba(0,0,0,0) 70%);
+            top: -10%;
+            left: -10%;
+            z-index: -1;
+            animation: floatGlow 12s infinite alternate ease-in-out;
+        }
+
+        .bg-glow-2 {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(248, 150, 30, 0.08) 0%, rgba(0,0,0,0) 70%);
+            bottom: -10%;
+            right: -10%;
+            z-index: -1;
+            animation: floatGlow 16s infinite alternate-reverse ease-in-out;
+        }
+
+        @keyframes floatGlow {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(60px, 40px) scale(1.1); }
+        }
+
+        /* Эффект матового стекла (Glassmorphism) */
+        .banking-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px); /* Поддержка iOS Safari */
+        }
+
+        .brand-title {
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--text-primary);
+            font-size: 1.8rem;
+        }
+        
+        .brand-title span {
+            color: var(--accent-color);
+        }
+
+        .nav-tabs-echo {
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            margin-bottom: 2rem;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            color: var(--text-primary);
+            border-bottom-color: var(--accent-color);
+        }
+
+        .form-label {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-control-dark, .form-select-dark {
+            background: rgba(26, 28, 32, 0.6);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary) !important;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-control-dark:focus, .form-select-dark:focus {
+            background: rgba(28, 30, 36, 0.9);
+            border-color: var(--accent-color);
+            box-shadow: none;
+            outline: none;
+        }
+
+        .btn-echo {
+            background: var(--accent-color);
+            border: none;
+            color: white;
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 14px;
+            font-size: 1rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-echo:hover {
+            background: #cc2a36;
+            color: white;
+        }
+
+        /* Анимация плавного появления карточек */
+        .account-card {
+            background: rgba(23, 25, 29, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 14px;
+            opacity: 0;
+            transform: translateY(25px);
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .account-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .account-card h6 { margin: 0; color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase; font-weight: 600; }
+        .account-card .card-owner { font-size: 0.85rem; color: var(--accent-color); font-weight: 500; margin-bottom: 4px; letter-spacing: 0.5px; }
+        .account-card .balance-val { font-size: 1.8rem; font-weight: 700; color: var(--text-primary); margin-top: 2px; }
+        .account-card .card-num { font-size: 0.85rem; color: #4e535c; font-family: monospace; margin-top: 4px; }
+
+        .info-box {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        /* Блок калькулятора обмена */
+        .live-rate-box {
+            background: rgba(248, 150, 30, 0.04);
+            border: 1px solid rgba(248, 150, 30, 0.15);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+        
+        /* Анимация мигания изменения курса */
+        .rate-update-flash {
+            transition: color 0.2s ease;
+        }
+        .rate-up { color: #34d399 !important; }
+        .rate-down { color: #f87171 !important; }
+    </style>
+</head>
+<body>
+
+<div class="bg-glow-1"></div>
+<div class="bg-glow-2"></div>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="banking-panel p-4 p-md-5">
+                
+                <div class="text-center mb-4">
+                    <h1 class="brand-title">Echo<span> Bank</span></h1>
+                </div>
+
+                <div class="nav-tabs-echo">
+                    <button class="tab-btn active" id="btn-dashboard" onclick="switchTab('dashboard')">Accounts</button>
+                    <button class="tab-btn" id="btn-transfer" onclick="switchTab('transfer')">Transfer</button>
+                    <button class="tab-btn" id="btn-exchange" onclick="switchTab('exchange')">Exchange</button>
+                </div>
+
+                <div id="tab-dashboard">
+                    <div id="dashboard-loading" class="text-muted small">Synchronizing accounts...</div>
+                    <div id="cards-list"></div>
+                    <h6 class="mt-4 mb-2" style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Recent Activity</h6>
+                    <div id="activity-list" class="text-muted small">No activity yet.</div>
+                </div>
+
+                <div id="tab-transfer" class="d-none">
+                    <form id="transferForm">
+                        <div class="mb-4">
+                            <label class="form-label">Source Account</label>
+                            <select id="txFrom" class="form-select form-select-dark w-100" required>
+                                <option value="" disabled selected>Select account...</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Beneficiary Card Number</label>
+                            <input type="text" id="txTo" class="form-control form-control-dark" placeholder="Enter 16-digit number" autocomplete="off" required>
+                            <div id="txToInfo" class="info-box" style="display:none;"></div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Amount</label>
+                            <input type="number" step="0.01" id="txAmount" class="form-control form-control-dark" placeholder="0.00" required>
+                        </div>
+                        <button type="submit" class="btn btn-echo w-100">Confirm & Send</button>
+                    </form>
+                </div>
+
+                <div id="tab-exchange" class="d-none">
+                    <form id="exchangeForm">
+                        <div class="mb-4">
+                            <label class="form-label">Debit Account (Sell)</label>
+                            <select id="exFrom" class="form-select form-select-dark w-100" required>
+                                <option value="" disabled selected>Select account to debit...</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Credit Account (Buy)</label>
+                            <select id="exTo" class="form-select form-select-dark w-100" required>
+                                <option value="" disabled selected>Select account to credit...</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Amount to Sell</label>
+                            <input type="number" step="0.01" id="exAmount" class="form-control form-control-dark" placeholder="0.00" required>
+                        </div>
+                        
+                        <div id="liveExchangeRate" class="live-rate-box d-none">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted small text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">Conversion Details</span>
+                                <span id="liveRateTicker" class="text-muted small fw-mono" style="font-size: 0.8rem;">Rate: --</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span id="exFromFlagValue" class="fw-medium"></span>
+                                <span class="text-muted small">➔</span>
+                                <span id="exToFlagValue" class="fw-bold rate-update-flash" style="color: var(--accent-orange);"></span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-echo w-100 mt-4" style="background: var(--accent-orange);">Execute Exchange</button>
+                    </form>
+                </div>
+
+                <div id="statusMessage" class="alert mt-4 d-none" role="alert" style="background:rgba(26,28,32,0.8); border-radius:8px; font-size:0.9rem;"></div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const currencySymbols = { "USD": "$", "EUR": "€", "GBP": "£" };
+    const currencyFlags = { "USD": "🇺🇸 USD", "EUR": "🇪🇺 EUR", "GBP": "🇬🇧 GBP" };
+    const MY_OWNER_NAME = "Nabijon Nazarov";
+    let cachedCards = [];
+
+    // Native haptic feedback (Taptic Engine)
+    function triggerHaptic(type) {
+        if (!("vibrate" in navigator)) return;
+        if (type === "success") {
+            navigator.vibrate([40, 30, 40]); // Два коротких четких импульса (как Apple Pay)
+        } else if (type === "error") {
+            navigator.vibrate([100, 50, 100, 50, 150]); // Прерывистая тревожная вибрация
+        } else if (type === "click") {
+            navigator.vibrate(20); // Едва заметный клик при табе по вкладке
+        }
+    }
+
+    function formatCurrencyValue(value) {
+        return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function switchTab(tabName) {
+        triggerHaptic("click");
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`btn-${tabName}`).classList.add('active');
+
+        document.getElementById('tab-dashboard').classList.add('d-none');
+        document.getElementById('tab-transfer').classList.add('d-none');
+        document.getElementById('tab-exchange').classList.add('d-none');
+        document.getElementById('statusMessage').classList.add('d-none');
+
+        document.getElementById(`tab-${tabName}`).classList.remove('d-none');
+
+        if (tabName === 'dashboard') loadDashboard();
+    }
+
+    function loadDashboard() {
+        document.getElementById('dashboard-loading').style.display = 'block';
+
+        fetch('/api/cards')
+        .then(r => r.json())
+        .then(allCards => {
+            const cards = allCards.filter(c => c.ownerName === MY_OWNER_NAME);
+            cachedCards = cards;
+            document.getElementById('dashboard-loading').style.display = 'none';
+
+            const listDiv = document.getElementById('cards-list');
+            listDiv.innerHTML = '';
+
+            const txSelect = document.getElementById('txFrom');
+            const exFromSelect = document.getElementById('exFrom');
+            const exToSelect = document.getElementById('exTo');
+
+            txSelect.innerHTML = '<option value="" disabled selected>Select account...</option>';
+            exFromSelect.innerHTML = '<option value="" disabled selected>Select account to debit...</option>';
+            exToSelect.innerHTML = '<option value="" disabled selected>Select account to credit...</option>';
+
+            cards.forEach((card, index) => {
+                const sym = currencySymbols[card.currency] || card.currency;
+                const flag = currencyFlags[card.currency] || card.currency;
+                const formattedBalance = formatCurrencyValue(card.balance);
+
+                listDiv.innerHTML += `
+                    <div class="account-card" id="card-${index}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="card-owner">${card.ownerName}</div>
+                                <h6>Balance (${card.currency})</h6>
+                            </div>
+                            <span class="card-num">•••• ${card.cardNumber.slice(-4)}</span>
+                        </div>
+                        <div class="balance-val">${sym}${formattedBalance}</div>
+                    </div>
+                `;
+
+                // Cascading fade-in animation for each card
+                setTimeout(() => {
+                    const el = document.getElementById(`card-${index}`);
+                    if(el) el.classList.add('visible');
+                }, index * 120);
+
+                const optText = `${flag} (•••• ${card.cardNumber.slice(-4)}) - Balance: ${sym}${formattedBalance}`;
+                txSelect.innerHTML += `<option value="${card.cardNumber}">${optText}</option>`;
+                exFromSelect.innerHTML += `<option value="${card.cardNumber}">${optText}</option>`;
+                exToSelect.innerHTML += `<option value="${card.cardNumber}">${optText}</option>`;
+            });
+
+            loadRecentActivity(cards);
+        })
+        .catch(() => {
+            document.getElementById('dashboard-loading').innerText = "Failed to sync with node.";
+        });
+    }
+
+    function loadRecentActivity(myCards) {
+        const activityList = document.getElementById('activity-list');
+        if (myCards.length === 0) {
+            activityList.innerHTML = '<div class="text-muted small">No activity yet.</div>';
+            return;
+        }
+
+        Promise.all(myCards.map(c => fetch(`/api/transactions/${c.cardNumber}`).then(r => r.json())))
+        .then(results => {
+            const merged = new Map();
+            results.flat().forEach(tx => merged.set(tx.id, tx));
+            const sorted = Array.from(merged.values())
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                .slice(0, 5);
+
+            if (sorted.length === 0) {
+                activityList.innerHTML = '<div class="text-muted small">No activity yet.</div>';
+                return;
+            }
+
+            activityList.innerHTML = sorted.map(tx => {
+                const isOutgoing = myCards.some(c => c.cardNumber === tx.fromCard);
+                const isFailed = tx.status !== 'COMPLETED';
+                const statusColor = isFailed ? '#f87171' : '#34d399';
+                const label = isFailed ? 'Failed' : (tx.type === 'EXCHANGE' ? 'Exchange' : (isOutgoing ? 'Sent' : 'Received'));
+                const otherCard = isOutgoing ? tx.toCard : tx.fromCard;
+                const amountText = isFailed
+                    ? (tx.failureReason || 'Declined')
+                    : `${isOutgoing ? '-' : '+'}${formatCurrencyValue(isOutgoing ? tx.requestedAmount : tx.settledAmount)} ${isOutgoing ? tx.fromCurrency : tx.toCurrency}`;
+                const when = new Date(tx.createdAt).toLocaleString();
+
+                return `
+                    <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom: 1px solid var(--border-color);">
+                        <div>
+                            <div class="small fw-semibold">${label} • •••• ${otherCard.slice(-4)}</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">${when}</div>
+                        </div>
+                        <div class="fw-semibold" style="color: ${statusColor}; font-size: 0.85rem;">${amountText}</div>
+                    </div>
+                `;
+            }).join('');
+        });
+    }
+
+    document.getElementById('txTo').addEventListener('input', function() {
+        const num = this.value;
+        const info = document.getElementById('txToInfo');
+        if(num.length < 16) { info.style.display = 'none'; return; }
+
+        fetch(`/api/card/${num}`)
+        .then(r => { if(!r.ok) throw new Error(); return r.json(); })
+        .then(card => {
+            info.style.display = 'block';
+            info.className = "info-box text-success";
+            info.innerText = `✓ Beneficiary Verified: ${card.ownerName}`;
+        })
+        .catch(() => {
+            info.style.display = 'block';
+            info.className = "info-box text-danger";
+            info.innerText = "✕ Invalid routing address / Account not found";
+        });
+    });
+
+    // Live exchange calculator — calls the same backend endpoint that settles
+    // the trade, so the preview always matches what actually executes.
+    const exAmountInput = document.getElementById('exAmount');
+    const exFromSelect = document.getElementById('exFrom');
+    const exToSelect = document.getElementById('exTo');
+    let lastCalculatedValue = 0;
+    let rateDebounceTimer = null;
+
+    function calculateLiveExchange() {
+        const amount = parseFloat(exAmountInput.value);
+        const fromCardNum = exFromSelect.value;
+        const toCardNum = exToSelect.value;
+        const rateBox = document.getElementById('liveExchangeRate');
+
+        if (!amount || !fromCardNum || !toCardNum || fromCardNum === toCardNum) {
+            rateBox.classList.add('d-none');
+            return;
+        }
+
+        const fromCard = cachedCards.find(c => c.cardNumber === fromCardNum);
+        const toCard = cachedCards.find(c => c.cardNumber === toCardNum);
+
+        clearTimeout(rateDebounceTimer);
+        rateDebounceTimer = setTimeout(() => {
+            const params = new URLSearchParams({ amount, from: fromCard.currency, to: toCard.currency });
+            fetch(`/api/rate/convert?${params}`)
+            .then(r => r.json())
+            .then(convertedAmount => {
+                rateBox.classList.remove('d-none');
+
+                const fromSym = currencySymbols[fromCard.currency];
+                const toSym = currencySymbols[toCard.currency];
+                const fromFlag = currencyFlags[fromCard.currency];
+                const toFlag = currencyFlags[toCard.currency];
+                const currentRate = (convertedAmount / amount).toFixed(4);
+
+                document.getElementById('exFromFlagValue').innerText = `${fromFlag} ${fromSym}${formatCurrencyValue(amount)}`;
+
+                const toValueContainer = document.getElementById('exToFlagValue');
+                toValueContainer.innerText = `${toFlag} ${toSym}${formatCurrencyValue(convertedAmount)}`;
+                document.getElementById('liveRateTicker').innerText = `Rate: ${currentRate}`;
+
+                if (lastCalculatedValue !== 0) {
+                    if (convertedAmount > lastCalculatedValue) {
+                        toValueContainer.classList.add('rate-up');
+                        setTimeout(() => toValueContainer.classList.remove('rate-up'), 600);
+                    } else if (convertedAmount < lastCalculatedValue) {
+                        toValueContainer.classList.add('rate-down');
+                        setTimeout(() => toValueContainer.classList.remove('rate-down'), 600);
+                    }
+                }
+                lastCalculatedValue = convertedAmount;
+            });
+        }, 250);
+    }
+
+    exAmountInput.addEventListener('input', () => { lastCalculatedValue = 0; calculateLiveExchange(); });
+    exFromSelect.addEventListener('change', () => { lastCalculatedValue = 0; calculateLiveExchange(); });
+    exToSelect.addEventListener('change', () => { lastCalculatedValue = 0; calculateLiveExchange(); });
+
+    function bindForm(formId, endpoint, getPayload) {
+        document.getElementById(formId).addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = this;
+            const status = document.getElementById('statusMessage');
+            status.className = "alert mt-4 d-none";
+
+            fetch(`/api/${endpoint}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(getPayload())
+            })
+            .then(async r => ({ ok: r.ok, data: await r.json() }))
+            .then(({ ok, data }) => {
+                status.classList.remove('d-none');
+                if (ok) {
+                    triggerHaptic("success");
+                    status.style.borderColor = "#34d399";
+                    status.style.color = "#34d399";
+                    status.innerText = `✓ ${data.message}`;
+                    form.reset();
+                    document.getElementById('txToInfo').style.display = 'none';
+                    document.getElementById('liveExchangeRate').classList.add('d-none');
+                    loadDashboard();
+                } else {
+                    triggerHaptic("error");
+                    status.style.borderColor = "var(--accent-color)";
+                    status.style.color = "var(--accent-color)";
+                    status.innerText = "✕ " + data.message;
+                }
+            })
+            .catch(() => {
+                status.classList.remove('d-none');
+                triggerHaptic("error");
+                status.style.borderColor = "var(--accent-color)";
+                status.style.color = "var(--accent-color)";
+                status.innerText = "✕ Network error — could not reach the server.";
+            });
+        });
+    }
+
+    bindForm('transferForm', 'transfer', () => ({
+        fromCard: document.getElementById('txFrom').value,
+        toCard: document.getElementById('txTo').value,
+        amount: parseFloat(document.getElementById('txAmount').value)
+    }));
+
+    bindForm('exchangeForm', 'exchange', () => ({
+        fromCard: document.getElementById('exFrom').value,
+        toCard: document.getElementById('exTo').value,
+        amount: parseFloat(document.getElementById('exAmount').value)
+    }));
+
+    loadDashboard();
+</script>
+
+</body>
+</html>
