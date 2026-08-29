@@ -52,11 +52,18 @@ public class FintechSimulatorApplication {
                 card5.setBalance(new BigDecimal("200.00"));
                 card5.setCurrency("USD");
 
+                Card card6 = new Card();
+                card6.setCardNumber("1234567812345678");
+                card6.setOwnerName("Ahmad Turik");
+                card6.setBalance(new BigDecimal("300.00"));
+                card6.setCurrency("GBP");
+
                 repository.save(card1);
                 repository.save(card2);
                 repository.save(card3);
                 repository.save(card4);
                 repository.save(card5);
+                repository.save(card6);
 
                 System.out.println("--- PERSISTENT DB INITIALIZED WITH STARTING CARDS ---");
             } else {
