@@ -213,6 +213,7 @@
                     <button class="tab-btn active" id="btn-dashboard" onclick="switchTab('dashboard')">Accounts</button>
                     <button class="tab-btn" id="btn-transfer" onclick="switchTab('transfer')">Transfer</button>
                     <button class="tab-btn" id="btn-exchange" onclick="switchTab('exchange')">Exchange</button>
+                    <button class="tab-btn" id="btn-history" onclick="switchTab('exchange')">Transaction History</button>
                 </div>
 
                 <div id="tab-dashboard">
@@ -221,6 +222,7 @@
                     <h6 class="mt-4 mb-2" style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Recent Activity</h6>
                     <div id="activity-list" class="text-muted small">No activity yet.</div>
                 </div>
+
 
                 <div id="tab-transfer" class="d-none">
                     <form id="transferForm">
@@ -277,6 +279,10 @@
                         <button type="submit" class="btn btn-echo w-100 mt-4" style="background: var(--accent-orange);">Execute Exchange</button>
                     </form>
                 </div>
+                <div id="tab-history" class="d-none">
+                    <div id="history-loading" class="text-muted small">Loading transaction history...</div>
+                    <div id="history-list"></div>
+                </div>
 
                 <div id="statusMessage" class="alert mt-4 d-none" role="alert" style="background:rgba(26,28,32,0.8); border-radius:8px; font-size:0.9rem;"></div>
 
@@ -315,6 +321,7 @@
         document.getElementById('tab-dashboard').classList.add('d-none');
         document.getElementById('tab-transfer').classList.add('d-none');
         document.getElementById('tab-exchange').classList.add('d-none');
+        document.getElementById('tab-history').classList.add('d-none');
         document.getElementById('statusMessage').classList.add('d-none');
 
         document.getElementById(`tab-${tabName}`).classList.remove('d-none');
@@ -422,6 +429,20 @@
                 `;
             }).join('');
         });
+    }
+    function loadTransactionHistory() {
+        document.getElementById('history-loading').style.display = 'block';
+
+        Promise.all(cachedCards.map(c => fetch(`/api/transactions/${c.cardNumber}`).then(r => r.json())))
+            .then(results => {
+                document.getElementById('history-loading').style.display = 'none';
+
+                const merged = new Map();
+                results.flat().forEach(tx => merged.set(tx.id, tx));
+                const sorted = Array.from(merged.values())
+                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                const listDiv = document.getElementById('history-list');
+            });
     }
 
     document.getElementById('txTo').addEventListener('input', function() {
