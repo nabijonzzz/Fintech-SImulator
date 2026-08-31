@@ -213,14 +213,13 @@
                     <button class="tab-btn active" id="btn-dashboard" onclick="switchTab('dashboard')">Accounts</button>
                     <button class="tab-btn" id="btn-transfer" onclick="switchTab('transfer')">Transfer</button>
                     <button class="tab-btn" id="btn-exchange" onclick="switchTab('exchange')">Exchange</button>
-                    <button class="tab-btn" id="btn-history" onclick="switchTab('exchange')">Transaction History</button>
+                    <button class="tab-btn" id="btn-history" onclick="switchTab('history')">Transaction History</button>
                 </div>
 
                 <div id="tab-dashboard">
                     <div id="dashboard-loading" class="text-muted small">Synchronizing accounts...</div>
                     <div id="cards-list"></div>
-                    <h6 class="mt-4 mb-2" style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Recent Activity</h6>
-                    <div id="activity-list" class="text-muted small">No activity yet.</div>
+
                 </div>
 
 
@@ -327,6 +326,7 @@
         document.getElementById(`tab-${tabName}`).classList.remove('d-none');
 
         if (tabName === 'dashboard') loadDashboard();
+        if (tabName === 'history') loadTransactionHistory();
     }
 
     function loadDashboard() {
@@ -380,56 +380,13 @@
                 exToSelect.innerHTML += `<option value="${card.cardNumber}">${optText}</option>`;
             });
 
-            loadRecentActivity(cards);
+
         })
         .catch(() => {
             document.getElementById('dashboard-loading').innerText = "Failed to sync with node.";
         });
     }
 
-    function loadRecentActivity(myCards) {
-        const activityList = document.getElementById('activity-list');
-        if (myCards.length === 0) {
-            activityList.innerHTML = '<div class="text-muted small">No activity yet.</div>';
-            return;
-        }
-
-        Promise.all(myCards.map(c => fetch(`/api/transactions/${c.cardNumber}`).then(r => r.json())))
-        .then(results => {
-            const merged = new Map();
-            results.flat().forEach(tx => merged.set(tx.id, tx));
-            const sorted = Array.from(merged.values())
-                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                .slice(0, 5);
-
-            if (sorted.length === 0) {
-                activityList.innerHTML = '<div class="text-muted small">No activity yet.</div>';
-                return;
-            }
-
-            activityList.innerHTML = sorted.map(tx => {
-                const isOutgoing = myCards.some(c => c.cardNumber === tx.fromCard);
-                const isFailed = tx.status !== 'COMPLETED';
-                const statusColor = isFailed ? '#f87171' : '#34d399';
-                const label = isFailed ? 'Failed' : (tx.type === 'EXCHANGE' ? 'Exchange' : (isOutgoing ? 'Sent' : 'Received'));
-                const otherCard = isOutgoing ? tx.toCard : tx.fromCard;
-                const amountText = isFailed
-                    ? (tx.failureReason || 'Declined')
-                    : `${isOutgoing ? '-' : '+'}${formatCurrencyValue(isOutgoing ? tx.requestedAmount : tx.settledAmount)} ${isOutgoing ? tx.fromCurrency : tx.toCurrency}`;
-                const when = new Date(tx.createdAt).toLocaleString();
-
-                return `
-                    <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom: 1px solid var(--border-color);">
-                        <div>
-                            <div class="small fw-semibold">${label} • •••• ${otherCard.slice(-4)}</div>
-                            <div class="text-muted" style="font-size: 0.75rem;">${when}</div>
-                        </div>
-                        <div class="fw-semibold" style="color: ${statusColor}; font-size: 0.85rem;">${amountText}</div>
-                    </div>
-                `;
-            }).join('');
-        });
-    }
     function loadTransactionHistory() {
         document.getElementById('history-loading').style.display = 'block';
 
@@ -441,7 +398,35 @@
                 results.flat().forEach(tx => merged.set(tx.id, tx));
                 const sorted = Array.from(merged.values())
                     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
                 const listDiv = document.getElementById('history-list');
+
+                if (sorted.length === 0) {
+                    listDiv.innerHTML = '<div class="text-muted small">No activity yet.</div>';
+                    return;
+                }
+
+                listDiv.innerHTML = sorted.map(tx => {
+                    const isOutgoing = cachedCards.some(c => c.cardNumber === tx.fromCard);
+                    const isFailed = tx.status !== 'COMPLETED';
+                    const statusColor = isFailed ? '#f87171' : '#34d399';
+                    const label = isFailed ? 'Failed' : (tx.type === 'EXCHANGE' ? 'Exchange' : (isOutgoing ? 'Sent' : 'Received'));
+                    const otherCard = isOutgoing ? tx.toCard : tx.fromCard;
+                    const amountText = isFailed
+                        ? (tx.failureReason || 'Declined')
+                        : `${isOutgoing ? '-' : '+'}${formatCurrencyValue(isOutgoing ? tx.requestedAmount : tx.settledAmount)} ${isOutgoing ? tx.fromCurrency : tx.toCurrency}`;
+                    const when = new Date(tx.createdAt).toLocaleString();
+
+                    return `
+                        <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom: 1px solid var(--border-color);">
+                            <div>
+                                <div class="small fw-semibold">${label} • •••• ${otherCard.slice(-4)}</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">${when}</div>
+                            </div>
+                            <div class="fw-semibold" style="color: ${statusColor}; font-size: 0.85rem;">${amountText}</div>
+                        </div>
+                    `;
+                }).join('');
             });
     }
 
