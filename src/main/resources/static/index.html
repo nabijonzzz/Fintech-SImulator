@@ -339,9 +339,6 @@
             cachedCards = cards;
             document.getElementById('dashboard-loading').style.display = 'none';
 
-            const listDiv = document.getElementById('cards-list');
-            listDiv.innerHTML = '';
-
             const txSelect = document.getElementById('txFrom');
             const exFromSelect = document.getElementById('exFrom');
             const exToSelect = document.getElementById('exTo');
@@ -350,40 +347,49 @@
             exFromSelect.innerHTML = '<option value="" disabled selected>Select account to debit...</option>';
             exToSelect.innerHTML = '<option value="" disabled selected>Select account to credit...</option>';
 
-            cards.forEach((card, index) => {
+            cards.forEach(card => {
                 const sym = currencySymbols[card.currency] || card.currency;
                 const flag = currencyFlags[card.currency] || card.currency;
                 const formattedBalance = formatCurrencyValue(card.balance);
-
-                listDiv.innerHTML += `
-                    <div class="account-card" id="card-${index}">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <div class="card-owner">${card.ownerName}</div>
-                                <h6>Balance (${card.currency})</h6>
-                            </div>
-                            <span class="card-num">•••• ${card.cardNumber.slice(-4)}</span>
-                        </div>
-                        <div class="balance-val">${sym}${formattedBalance}</div>
-                    </div>
-                `;
-
-                // Cascading fade-in animation for each card
-                setTimeout(() => {
-                    const el = document.getElementById(`card-${index}`);
-                    if(el) el.classList.add('visible');
-                }, index * 120);
-
                 const optText = `${flag} (•••• ${card.cardNumber.slice(-4)}) - Balance: ${sym}${formattedBalance}`;
                 txSelect.innerHTML += `<option value="${card.cardNumber}">${optText}</option>`;
                 exFromSelect.innerHTML += `<option value="${card.cardNumber}">${optText}</option>`;
                 exToSelect.innerHTML += `<option value="${card.cardNumber}">${optText}</option>`;
             });
 
-
+            renderCardsList(cards);
         })
         .catch(() => {
             document.getElementById('dashboard-loading').innerText = "Failed to sync with node.";
+        });
+    }
+
+    function renderCardsList(cards) {
+        const listDiv = document.getElementById('cards-list');
+        listDiv.innerHTML = '';
+
+        cards.forEach((card, index) => {
+            const sym = currencySymbols[card.currency] || card.currency;
+            const formattedBalance = formatCurrencyValue(card.balance);
+
+            listDiv.innerHTML += `
+                <div class="account-card" id="card-${index}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="card-owner">${card.ownerName}</div>
+                            <h6>Balance (${card.currency})</h6>
+                        </div>
+                        <span class="card-num">•••• ${card.cardNumber.slice(-4)}</span>
+                    </div>
+                    <div class="balance-val">${sym}${formattedBalance}</div>
+                </div>
+            `;
+
+            // Cascading fade-in animation for each card
+            setTimeout(() => {
+                const el = document.getElementById(`card-${index}`);
+                if(el) el.classList.add('visible');
+            }, index * 120);
         });
     }
 
