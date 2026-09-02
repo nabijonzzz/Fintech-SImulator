@@ -193,6 +193,29 @@
         }
         .rate-up { color: #34d399 !important; }
         .rate-down { color: #f87171 !important; }
+
+        /* Фильтр карточек по валюте */
+        .currency-filter {
+            display: flex;
+            gap: 8px;
+        }
+
+        .filter-btn {
+            background: rgba(26, 28, 32, 0.6);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn.active {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
     </style>
 </head>
 <body>
@@ -218,6 +241,12 @@
 
                 <div id="tab-dashboard">
                     <div id="dashboard-loading" class="text-muted small">Synchronizing accounts...</div>
+                    <div class="currency-filter mb-3">
+                        <button class="filter-btn active" data-currency="ALL">All</button>
+                        <button class="filter-btn" data-currency="USD">USD</button>
+                        <button class="filter-btn" data-currency="EUR">EUR</button>
+                        <button class="filter-btn" data-currency="GBP">GBP</button>
+                    </div>
                     <div id="cards-list"></div>
 
                 </div>
