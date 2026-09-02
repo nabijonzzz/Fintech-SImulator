@@ -324,6 +324,7 @@
     const currencyFlags = { "USD": "🇺🇸 USD", "EUR": "🇪🇺 EUR", "GBP": "🇬🇧 GBP" };
     const MY_OWNER_NAME = "Nabijon Nazarov";
     let cachedCards = [];
+    let activeCurrencyFilter = 'ALL';
 
     // Native haptic feedback (Taptic Engine)
     function triggerHaptic(type) {
@@ -393,11 +394,24 @@
         });
     }
 
+    function setCurrencyFilter(currency) {
+        activeCurrencyFilter = currency;
+        renderCardsList(cachedCards);
+    }
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => setCurrencyFilter(btn.dataset.currency));
+    });
+
     function renderCardsList(cards) {
         const listDiv = document.getElementById('cards-list');
         listDiv.innerHTML = '';
 
-        cards.forEach((card, index) => {
+        const filteredCards = activeCurrencyFilter === 'ALL'
+            ? cards
+            : cards.filter(c => c.currency === activeCurrencyFilter);
+
+        filteredCards.forEach((card, index) => {
             const sym = currencySymbols[card.currency] || card.currency;
             const formattedBalance = formatCurrencyValue(card.balance);
 
