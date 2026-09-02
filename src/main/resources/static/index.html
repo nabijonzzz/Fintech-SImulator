@@ -396,6 +396,11 @@
 
     function setCurrencyFilter(currency) {
         activeCurrencyFilter = currency;
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.currency === currency);
+        });
+
         renderCardsList(cachedCards);
     }
 
