@@ -416,6 +416,11 @@
             ? cards
             : cards.filter(c => c.currency === activeCurrencyFilter);
 
+        if (filteredCards.length === 0) {
+            listDiv.innerHTML = `<div class="text-muted small">No ${activeCurrencyFilter} accounts.</div>`;
+            return;
+        }
+
         filteredCards.forEach((card, index) => {
             const sym = currencySymbols[card.currency] || card.currency;
             const formattedBalance = formatCurrencyValue(card.balance);
