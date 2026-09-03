@@ -522,11 +522,14 @@
         const fromCardNum = document.getElementById('txFrom').value;
         const amount = parseFloat(document.getElementById('txAmount').value);
         const warning = document.getElementById('txAmountWarning');
+        const submitBtn = document.getElementById('txSubmitBtn');
 
         const fromCard = cachedCards.find(c => c.cardNumber === fromCardNum);
         const insufficient = fromCard && amount > 0 && amount > fromCard.balance;
 
         warning.style.display = insufficient ? 'block' : 'none';
+        submitBtn.disabled = insufficient;
+        submitBtn.style.opacity = insufficient ? '0.5' : '1';
     }
 
     document.getElementById('txFrom').addEventListener('change', checkSufficientFunds);
