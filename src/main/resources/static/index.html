@@ -392,9 +392,29 @@
             });
 
             renderCardsList(cards);
+            updateTotalBalance(cards);
         })
         .catch(() => {
             document.getElementById('dashboard-loading').innerText = "Failed to sync with node.";
+        });
+    }
+
+    function updateTotalBalance(cards) {
+        const totalEl = document.getElementById('total-balance-val');
+
+        if (cards.length === 0) {
+            totalEl.innerText = '$0.00';
+            return;
+        }
+
+        Promise.all(cards.map(c => {
+            if (c.currency === 'USD') return Promise.resolve(c.balance);
+            const params = new URLSearchParams({ amount: c.balance, from: c.currency, to: 'USD' });
+            return fetch(`/api/rate/convert?${params}`).then(r => r.json());
+        }))
+        .then(amounts => {
+            const total = amounts.reduce((sum, val) => sum + val, 0);
+            totalEl.innerText = `$${formatCurrencyValue(total)}`;
         });
     }
 
