@@ -401,6 +401,7 @@
 
     function updateTotalBalance(cards) {
         const totalEl = document.getElementById('total-balance-val');
+        totalEl.innerText = 'Calculating...';
 
         if (cards.length === 0) {
             totalEl.innerText = '$0.00';
@@ -415,6 +416,9 @@
         .then(amounts => {
             const total = amounts.reduce((sum, val) => sum + val, 0);
             totalEl.innerText = `$${formatCurrencyValue(total)}`;
+        })
+        .catch(() => {
+            totalEl.innerText = 'Unavailable';
         });
     }
 
