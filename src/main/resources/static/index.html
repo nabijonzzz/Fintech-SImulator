@@ -518,6 +518,20 @@
             });
     }
 
+    function checkSufficientFunds() {
+        const fromCardNum = document.getElementById('txFrom').value;
+        const amount = parseFloat(document.getElementById('txAmount').value);
+        const warning = document.getElementById('txAmountWarning');
+
+        const fromCard = cachedCards.find(c => c.cardNumber === fromCardNum);
+        const insufficient = fromCard && amount > 0 && amount > fromCard.balance;
+
+        warning.style.display = insufficient ? 'block' : 'none';
+    }
+
+    document.getElementById('txFrom').addEventListener('change', checkSufficientFunds);
+    document.getElementById('txAmount').addEventListener('input', checkSufficientFunds);
+
     document.getElementById('txTo').addEventListener('input', function() {
         const num = this.value;
         const info = document.getElementById('txToInfo');
