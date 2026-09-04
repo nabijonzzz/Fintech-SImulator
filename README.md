@@ -9,9 +9,13 @@ It's a simulator, not a real bank: no login system, no real money, exchange rate
 ## What it does
 
 - Card accounts in USD/EUR/GBP with persistent balances
+- Shows your total balance across all cards, converted to USD
+- Filter your accounts by currency
 - Transfers between cards, with automatic currency conversion
+- Warns you before you hit send if you don't have enough money — no need to wait for the server to say no
 - Exchange between your own cards — the rate you see before confirming is pulled from the same endpoint that actually settles the trade, so the preview can't lie to you
 - Every transfer/exchange gets logged to a transaction ledger, successful or not, so there's an actual audit trail instead of just a balance that silently changed
+- A Markets tab with a few stocks that move on their own — clearly labeled as fake data, just for looks
 
 ## Stack
 
