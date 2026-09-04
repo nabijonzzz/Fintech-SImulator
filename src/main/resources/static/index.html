@@ -336,6 +336,15 @@
     let cachedCards = [];
     let activeCurrencyFilter = 'ALL';
 
+    // Simulated stock data for the Markets tab — display only, not tied to any real feed.
+    let stocks = [
+        { ticker: 'AAPL', name: 'Apple Inc.', price: 178.32 },
+        { ticker: 'TSLA', name: 'Tesla Inc.', price: 242.10 },
+        { ticker: 'GOOGL', name: 'Alphabet Inc.', price: 138.75 },
+        { ticker: 'MSFT', name: 'Microsoft Corp.', price: 402.50 },
+        { ticker: 'AMZN', name: 'Amazon.com Inc.', price: 178.90 }
+    ];
+
     // Native haptic feedback (Taptic Engine)
     function triggerHaptic(type) {
         if (!("vibrate" in navigator)) return;
@@ -372,7 +381,26 @@
     }
 
     function renderStocksList() {
-        // Populated in a follow-up commit.
+        const listDiv = document.getElementById('markets-list');
+
+        listDiv.innerHTML = stocks.map((stock, index) => `
+            <div class="account-card" id="stock-${index}">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="card-owner">${stock.name}</div>
+                        <h6>${stock.ticker}</h6>
+                    </div>
+                </div>
+                <div class="balance-val">$${stock.price.toFixed(2)}</div>
+            </div>
+        `).join('');
+
+        stocks.forEach((stock, index) => {
+            setTimeout(() => {
+                const el = document.getElementById(`stock-${index}`);
+                if (el) el.classList.add('visible');
+            }, index * 120);
+        });
     }
 
     function loadDashboard() {
