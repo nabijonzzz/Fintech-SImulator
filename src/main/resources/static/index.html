@@ -237,6 +237,7 @@
                     <button class="tab-btn" id="btn-transfer" onclick="switchTab('transfer')">Transfer</button>
                     <button class="tab-btn" id="btn-exchange" onclick="switchTab('exchange')">Exchange</button>
                     <button class="tab-btn" id="btn-history" onclick="switchTab('history')">Transaction History</button>
+                    <button class="tab-btn" id="btn-markets" onclick="switchTab('markets')">Markets</button>
                 </div>
 
                 <div id="tab-dashboard">
@@ -317,6 +318,10 @@
                     <div id="history-list"></div>
                 </div>
 
+                <div id="tab-markets" class="d-none">
+                    <div id="markets-list"></div>
+                </div>
+
                 <div id="statusMessage" class="alert mt-4 d-none" role="alert" style="background:rgba(26,28,32,0.8); border-radius:8px; font-size:0.9rem;"></div>
 
             </div>
@@ -356,12 +361,18 @@
         document.getElementById('tab-transfer').classList.add('d-none');
         document.getElementById('tab-exchange').classList.add('d-none');
         document.getElementById('tab-history').classList.add('d-none');
+        document.getElementById('tab-markets').classList.add('d-none');
         document.getElementById('statusMessage').classList.add('d-none');
 
         document.getElementById(`tab-${tabName}`).classList.remove('d-none');
 
         if (tabName === 'dashboard') loadDashboard();
         if (tabName === 'history') loadTransactionHistory();
+        if (tabName === 'markets') renderStocksList();
+    }
+
+    function renderStocksList() {
+        // Populated in a follow-up commit.
     }
 
     function loadDashboard() {
