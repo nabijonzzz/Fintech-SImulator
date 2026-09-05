@@ -310,7 +310,7 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-echo w-100 mt-4" style="background: var(--accent-orange);">Execute Exchange</button>
+                        <button type="submit" id="exSubmitBtn" class="btn btn-echo w-100 mt-4" style="background: var(--accent-orange);">Execute Exchange</button>
                     </form>
                 </div>
                 <div id="tab-history" class="d-none">
@@ -635,6 +635,11 @@
         const fromCardNum = exFromSelect.value;
         const toCardNum = exToSelect.value;
         const rateBox = document.getElementById('liveExchangeRate');
+        const submitBtn = document.getElementById('exSubmitBtn');
+        const sameCard = fromCardNum && fromCardNum === toCardNum;
+
+        submitBtn.disabled = sameCard;
+        submitBtn.style.opacity = sameCard ? '0.5' : '1';
 
         if (!amount || !fromCardNum || !toCardNum || fromCardNum === toCardNum) {
             rateBox.classList.add('d-none');
