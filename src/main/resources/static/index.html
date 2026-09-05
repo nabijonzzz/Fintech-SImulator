@@ -322,6 +322,7 @@
 
                 <div id="tab-markets" class="d-none">
                     <div class="info-box mb-3">Simulated market data for demo purposes — not connected to a real feed.</div>
+                    <input type="text" id="stockSearch" class="form-control form-control-dark mb-3" placeholder="Search ticker or name...">
                     <div id="markets-list"></div>
                 </div>
 
@@ -433,6 +434,16 @@
         }
     }
     setInterval(simulateStockMovement, 3000);
+
+    document.getElementById('stockSearch').addEventListener('input', function() {
+        const query = this.value.trim().toLowerCase();
+        stocks.forEach((stock, index) => {
+            const card = document.getElementById(`stock-${index}`);
+            if (!card) return;
+            const matches = stock.ticker.toLowerCase().includes(query) || stock.name.toLowerCase().includes(query);
+            card.style.display = matches ? '' : 'none';
+        });
+    });
 
     function loadDashboard() {
         document.getElementById('dashboard-loading').style.display = 'block';
